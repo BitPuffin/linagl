@@ -15,4 +15,4 @@ type
 
 proc initVector*[T, D](elements: varargs[T]): TVector[T, D] =
   when len(elements) != len(result.elements):
-    {.error: "Too many or too little parameters to match the vector dimension".}
+    {.fatal: "Too many or too little parameters to match the vector dimension".}
