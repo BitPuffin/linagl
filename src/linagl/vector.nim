@@ -14,4 +14,5 @@ type
   TVec4i* = TVector[int, range[1..4]]
 
 proc initVector*[T, D](elements: varargs[T]): TVector[T, D] =
-  # TODO: Implement this shit
+  when len(elements) != len(result.elements):
+    {.error: "Too many or too little parameters to match the vector dimension".}
