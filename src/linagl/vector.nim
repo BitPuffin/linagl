@@ -42,3 +42,19 @@ proc dot*[T, I](a, b: TVector[T, I]): T =
   for i in low(a)..high(a):
     result += a[i] * b[i]
 
+proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  # when len(a) != 3:
+  #  {.fatal: "Cross product only works with 3 dimensional vectors".}
+  # Uncomment this when Araq fixes !=
+  result =
+    [a[1] * b[2] - b[1] * a[2],
+     a[2] * b[0] - b[2] * a[0],
+     a[0] * b[1] - b[0] * a[1]]
+
+# var a, b: TVec3i
+# a = [1, 2, 3]
+# b = [1, 3, 2]
+# var c = cross(a, b)
+# var d = cross(b, a]
+
+# echo("c: [", c[0], " ", c[1], " ", c[2], "]")
