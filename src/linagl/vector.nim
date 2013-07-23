@@ -1,5 +1,7 @@
 ## Author: Isak Andersson
 
+from math import pow, sqrt
+
 type
   TVector*[T; I:range] = array[I, T] ## T = Type, I = Indices - will possibly later be changed to Dimension (number)
   TVec2* = TVector[float32, range[0..1]]
@@ -25,4 +27,14 @@ proc `-`*[T, I](a: TVector[T, I]): TVector[T, I] =
 
 proc `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   result = a + (-b)
+
+proc mag*[T, I](a: TVector[T, I]): float =
+  for i in low(a)..high(a):
+    when T is int:
+      result += pow(toFloat(a[i]), 2.0)
+    elif T is float:
+      result += pow(a[i], 2.0)
+    else:
+      {.fatal: "Cannot pow that datatype".}
+  result = sqrt(result)
 
