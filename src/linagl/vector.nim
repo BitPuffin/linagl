@@ -58,3 +58,7 @@ proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
 # var d = cross(b, a]
 
 # echo("c: [", c[0], " ", c[1], " ", c[2], "]")
+
+proc dist*[T, I](a, b: TVector[T, I]): float =
+  result = (a - b).mag
+
