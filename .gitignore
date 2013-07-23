@@ -2,4 +2,6 @@
 *.swp
 *.c
 *.o
-
+nimcache
+vector
+matrix
