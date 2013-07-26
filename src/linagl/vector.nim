@@ -28,8 +28,9 @@ proc `-`*[T, I](a: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = -a[i]
 
-template `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  a + (-b)
+proc `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  for i in low(a)..high(a):
+    result[i] = a[i] - b[i]
 
 template sub*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   a - b
