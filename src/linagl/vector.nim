@@ -59,6 +59,9 @@ proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
      a[2] * b[0] - b[2] * a[0],
      a[0] * b[1] - b[0] * a[1]]
 
+proc `*+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  result = a.cross(b)
+
 proc dist*[T, I](a, b: TVector[T, I]): float =
   result = (a - b).mag
 
