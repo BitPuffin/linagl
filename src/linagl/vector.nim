@@ -21,6 +21,9 @@ proc `+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = a[i] + b[i]
 
+proc add*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  result = a + b
+
 proc `-`*[T, I](a: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = -a[i]
