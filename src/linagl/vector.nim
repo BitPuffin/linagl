@@ -102,6 +102,6 @@ proc `$`*[T, I](a: TVector[T, I]): string =
       result &= ", "
   result &= "]"
 
-template toString[T, I](a: TVector[T, I]) =
+template toString*[T, I](a: TVector[T, I]) =
   $a
 
