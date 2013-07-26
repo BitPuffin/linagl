@@ -14,8 +14,7 @@ type
   TVec3i* = TVector[int, range[0..2]]
   TVec4i* = TVector[int, range[0..3]]
 
-# This cannot yet take a TVector.
-proc `==`*[T:range, U](a, b: array[T, U]): bool =
+proc `==`*[T, I](a, b: TVector[T, I]): bool =
   for i in low(a)..high(a):
     if a[i] != b[i]:
       return false
