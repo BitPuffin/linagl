@@ -71,10 +71,10 @@ template `*.`*[T, I](a, b: TVector[T, I]): T =
 proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   when len(a) != 3:
     {.fatal: "Cross product only works with 3 dimensional vectors".}
-  result = [
-    a[1] * b[2] - b[1] * a[2],
-    a[2] * b[0] - b[2] * a[0],
-    a[0] * b[1] - b[0] * a[1]]
+  result =
+    [a[1] * b[2] - b[1] * a[2],
+     a[2] * b[0] - b[2] * a[0],
+     a[0] * b[1] - b[0] * a[1]]
 
 template `*+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   a.cross(b)
@@ -96,11 +96,11 @@ proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
     result[i] = a[i] / m
 
 const
-  SwizzleArr = [
-    {'x', 'X', 'r', 'R', 's', 'S'},
-    {'y', 'Y', 'g', 'G', 't', 'T'},
-    {'z', 'Z', 'b', 'B', 'p', 'P'},
-    {'w', 'W', 'a', 'A', 'q', 'Q'}]
+  SwizzleArr =
+    [{'x', 'X', 'r', 'R', 's', 'S'},
+     {'y', 'Y', 'g', 'G', 't', 'T'},
+     {'z', 'Z', 'b', 'B', 'p', 'P'},
+     {'w', 'W', 'a', 'A', 'q', 'Q'}]
 
   X_swizzleChars = SwizzleArr[0]
   XY_swizzleChars = X_swizzleChars + SwizzleArr[1]
