@@ -31,6 +31,9 @@ proc `-`*[T, I](a: TVector[T, I]): TVector[T, I] =
 proc `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   result = a + (-b)
 
+proc sub*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  result = a - b
+
 proc mag*[T, I](a: TVector[T, I]): float =
   for i in low(a)..high(a):
     when T is int:
