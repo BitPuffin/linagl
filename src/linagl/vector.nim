@@ -79,22 +79,24 @@ proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = a[i] / m
 
-const swizzles = {'x', 'X', 'y', 'Y', 'z', 'Z', 'w', 'W', 'r', 'R', 'g', 'G', 'b', 'B', 'a', 'A', 's', 'S', 't', 'T', 'r', 'R', 'q', 'Q'}
+const swizzles = {'x', 'X', 'y', 'Y', 'z', 'Z', 'w', 'W', 'r', 'R', 'g', 'G', 'b', 'B', 'a', 'A', 's', 'S', 't', 'T', 'p', 'P', 'q', 'Q'}
 from strutils import contains
-template swizzle*[T, I](a: TVector[T, I]; s: string{lit}) =
+template swizzle*(a: TVector; s: string{lit}) =
   when s.contains({char(0)..char(255)} - swizzles):
     {.fatal:"Invalid characters for swizzling".}
-  var result: TVector[T, 0..len(s)-1]
+  var result: TVector[type(a[0]), 0..len(s)-1]
   for i, c in pairs(s):
     case c
     of 'x', 'X', 'r', 'R', 's', 'S':
       result[i] = a[0]
     of 'y', 'Y', 'g', 'G', 't', 'T':
       result[i] = a[1]
-    of 'z', 'Z', 'b', 'B', 'r', 'R':
+    of 'z', 'Z', 'b', 'B', 'p', 'P':
       result[i] = a[2]
     of 'w', 'W', 'a', 'A', 'q', 'Q':
       result[i] = a[3]
+    else:
+      {.error: "Not possible".}
   result
 
 proc `$`*[T, I](a: TVector[T, I]): string =
@@ -111,4 +113,4 @@ template toString*[T, I](a: TVector[T, I]) =
   $a
 
 #var a: TVec3i = [1, 3, 37]
-#echo($(a.swizzle("")))
+#echo($(a.swizzle("rgbbg")))
