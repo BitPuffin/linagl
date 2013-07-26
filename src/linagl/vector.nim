@@ -65,3 +65,9 @@ proc `*+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
 proc dist*[T, I](a, b: TVector[T, I]): float =
   result = (a - b).mag
 
+proc `*`*[T, I](a: T; b: TVector[T, I]): TVector[T, I] =
+  for i in low(b)..high(b):
+    result[i] = a * b[i]
+
+proc `*`*[T, I](a: TVector[T, I]; b: T): TVector[T, I] =
+  result = b * a
