@@ -48,6 +48,9 @@ proc dot*[T, I](a, b: TVector[T, I]): T =
   for i in low(a)..high(a):
     result += a[i] * b[i]
 
+proc `*.`*[T, I](a, b: TVector[T, I]): T =
+  result = a.dot(b)
+
 proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   when len(a) != 3:
     {.fatal: "Cross product only works with 3 dimensional vectors".}
