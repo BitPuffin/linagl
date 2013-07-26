@@ -71,3 +71,10 @@ proc `*`*[T, I](a: T; b: TVector[T, I]): TVector[T, I] =
 
 proc `*`*[T, I](a: TVector[T, I]; b: T): TVector[T, I] =
   result = b * a
+
+# Kind of sucks for ints currently, perhaps convert an int vector to float in this case?
+proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
+  let m = mag(a)
+  for i in low(a)..high(a):
+    result[i] = a[i] / m
+
