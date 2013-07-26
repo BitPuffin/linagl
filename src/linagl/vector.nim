@@ -1,6 +1,11 @@
 ## Author: Isak Andersson
 
-from math import pow, sqrt
+from math import
+  pow,
+  sqrt
+
+from strutils import
+  contains
 
 type
   TVector*[T; I:range] = array[I, T] ## T = Type, I = Indices - will possibly later be changed to Dimension (number)
@@ -14,29 +19,45 @@ type
   TVec3i* = TVector[int, range[0..2]]
   TVec4i* = TVector[int, range[0..3]]
 
-template `+`*[T, I](a: TVector[T, I]): TVector[T, I] = 
+# This cannot yet take a TVector.
+proc `==`*[T:range, U](a, b: array[T, U]): bool =
+  for i in a.low..a.high:
+    if a[i] != b[i]:
+      return false
+
+  return true
+
+# Ditto.
+proc `~=`*[T:range, U](a, b: array[T, U]): bool =
+  for i in a.low..a.high:
+    if a[i] + b[i] > 0.000001:
+      return false
+
+  return true
+
+template `+`*[T, I](a: TVector[T, I]): TVector[T, I] =
   a
 
 proc `+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  for i in low(a)..high(a):
+  for i in a.low..a.high:
     result[i] = a[i] + b[i]
 
 template add*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   a + b
 
 proc `-`*[T, I](a: TVector[T, I]): TVector[T, I] =
-  for i in low(a)..high(a):
+  for i in a.low..a.high:
     result[i] = -a[i]
 
 proc `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  for i in low(a)..high(a):
+  for i in a.low..a.high:
     result[i] = a[i] - b[i]
 
 template sub*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   a - b
 
 proc mag*[T, I](a: TVector[T, I]): float =
-  for i in low(a)..high(a):
+  for i in a.low..a.high:
     when T is int:
       result += pow(toFloat(a[i]), 2.0)
     elif T is float:
@@ -46,19 +67,19 @@ proc mag*[T, I](a: TVector[T, I]): float =
   result = sqrt(result)
 
 proc dot*[T, I](a, b: TVector[T, I]): T =
-  for i in low(a)..high(a):
+  for i in a.low..a.high:
     result += a[i] * b[i]
 
 template `*.`*[T, I](a, b: TVector[T, I]): T =
   a.dot(b)
 
 proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  when len(a) != 3:
+  when high(a) - low(a) + 1 != 3:
     {.fatal: "Cross product only works with 3 dimensional vectors".}
-  result =
-    [a[1] * b[2] - b[1] * a[2],
-     a[2] * b[0] - b[2] * a[0],
-     a[0] * b[1] - b[0] * a[1]]
+  result = [
+    a[1] * b[2] - b[1] * a[2],
+    a[2] * b[0] - b[2] * a[0],
+    a[0] * b[1] - b[0] * a[1]]
 
 template `*+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   a.cross(b)
@@ -67,7 +88,7 @@ proc dist*[T, I](a, b: TVector[T, I]): float =
   result = (a - b).mag
 
 proc `*`*[T, I](a: T; b: TVector[T, I]): TVector[T, I] =
-  for i in low(b)..high(b):
+  for i in b.low..b.high:
     result[i] = a * b[i]
 
 template `*`*[T, I](a: TVector[T, I]; b: T): TVector[T, I] =
@@ -76,32 +97,55 @@ template `*`*[T, I](a: TVector[T, I]; b: T): TVector[T, I] =
 # Kind of sucks for ints currently, perhaps convert an int vector to float in this case?
 proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
   let m = mag(a)
-  for i in low(a)..high(a):
+  for i in low.a..high.a:
     result[i] = a[i] / m
 
-const swizzles = {'x', 'X', 'y', 'Y', 'z', 'Z', 'w', 'W', 'r', 'R', 'g', 'G', 'b', 'B', 'a', 'A', 's', 'S', 't', 'T', 'p', 'P', 'q', 'Q'}
-from strutils import contains
-template swizzle*(a: TVector; s: string{lit}) =
-  when s.contains({char(0)..char(255)} - swizzles):
-    {.fatal:"Invalid characters for swizzling".}
-  var result: TVector[type(a[0]), 0..len(s)-1]
-  for i, c in pairs(s):
-    case c
-    of 'x', 'X', 'r', 'R', 's', 'S':
-      result[i] = a[0]
-    of 'y', 'Y', 'g', 'G', 't', 'T':
-      result[i] = a[1]
-    of 'z', 'Z', 'b', 'B', 'p', 'P':
-      result[i] = a[2]
-    of 'w', 'W', 'a', 'A', 'q', 'Q':
-      result[i] = a[3]
+const
+  SwizzleArr = [
+    {'x', 'X', 'r', 'R', 's', 'S'},
+    {'y', 'Y', 'g', 'G', 't', 'T'},
+    {'z', 'Z', 'b', 'B', 'p', 'P'},
+    {'w', 'W', 'a', 'A', 'q', 'Q'}]
+
+  X_swizzleChars = SwizzleArr[0]
+  XY_swizzleChars = X_swizzleChars + SwizzleArr[1]
+  XYZ_swizzleChars = XY_swizzleChars + SwizzleArr[2]
+  swizzleChars = SwizzleArr[0] +
+    SwizzleArr[1] +
+    SwizzleArr[2] +
+    SwizzleArr[3]
+
+proc swizzleImpl[T, U](str: string): array[T, U] {.compileTime.} =
+  for i, ch in str:
+    if ch in SwizzleArr[0]:
+      result[i] = 0
+    elif ch in SwizzleArr[1]:
+      result[i] = 1
+    elif ch in SwizzleArr[2]:
+      result[i] = 2
+    elif ch in SwizzleArr[3]:
+      result[i] = 3
     else:
-      {.error: "Not possible".}
+      # I don't know how to fail here. Pragmas are evaluated independently of the code flow.
+
+template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
+  when str.contains({char(0)..char(255)} - swizzleChars):
+    {.fatal: "Invalid characters for swizzling".}
+
+  when str.len == 0:
+    {.fatal: "Cannot swizzle zero components".}
+
+  var result: TVector[vec[0].type, range[0.. <str.len]]
+  for i, component in swizzleImpl[range[0.. <str.len], vec[0].type](str):
+    assert component < vec.len
+    result[i] = vec[component]
   result
 
+template swizzle*[T, I](a: TVector[T, I], str: string{lit}): expr =
+  a{str}
+
 proc `$`*[T, I](a: TVector[T, I]): string =
-  result = ""
-  result &= "["
+  result = "["
   var h = high(a)
   for i in low(a)..h:
     result &= $a[i]
@@ -112,5 +156,15 @@ proc `$`*[T, I](a: TVector[T, I]): string =
 template toString*[T, I](a: TVector[T, I]) =
   $a
 
-#var a: TVec3i = [1, 3, 37]
-#echo($(a.swizzle("rgbbg")))
+when isMainModule:
+  var v3 = [1, 3, 37]
+  assert v3{"rgbbg"} == [1, 3, 37, 37, 3]
+  assert v3{"rgbbg"} == v3.swizzle("rgbbg")
+  assert v3{"rrbbggr"} == [1, 1, 37, 37, 3, 3, 1]
+
+  var v4 = [1, 3, 37, 4]
+  assert v4{"rgbbg"} == [1, 3, 37, 37, 3]
+  assert v4{"rrbaggr"} == [1, 1, 37, 4, 3, 3, 1]
+
+  assert($v3 == "[1, 3, 37]")
+  assert($v4 == "[1, 3, 37, 4]")
