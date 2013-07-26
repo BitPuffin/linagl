@@ -79,8 +79,26 @@ proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = a[i] / m
 
-var 
-  a = [23, 48, 2].TVec3i
-  b = [42, 28, 29].TVec3i
-  c: TVec3i
+#template swizzle*[T, I](a: TVector[T, I]; s: string) =
+#  var result: TVector[T, 0..len(s)]
+#  for i, c in pairs(s):
+#    case c
+#    of 'x', 'r', 's':
+#      result[i] = a[0]
+#    of 'y', 'g', 't':
+#      result[i] = a[1]
+#    of 'z', 'b', 'r':
+#      result[i] = a[2]
+#    of 'w', 'a', 'q':
+#      result[i] = a[3]
+
+proc `$`*[T, I](a: TVector[T, I]): string =
+  result = ""
+  result &= "["
+  var h = high(a)
+  for i in low(a)..h:
+    result &= $a[i]
+    if i != h:
+      result &= ", "
+  result &= "]"
 
