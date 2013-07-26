@@ -22,7 +22,7 @@ proc `==`*[T, I](a, b: TVector[T, I]): bool =
   return true
 
 # Ditto.
-proc `~=`*[T:range, U](a, b: array[T, U]): bool =
+proc `~=`*[T, I](a, b: TVector[T, I]): bool =
   for i in low(a)..high(a):
     if a[i] + b[i] > 0.000001:
       return false
