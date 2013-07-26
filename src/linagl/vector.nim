@@ -14,25 +14,25 @@ type
   TVec3i* = TVector[int, range[0..2]]
   TVec4i* = TVector[int, range[0..3]]
 
-proc `+`*[T, I](a: TVector[T, I]): TVector[T, I] = 
-  result = a
+template `+`*[T, I](a: TVector[T, I]): TVector[T, I] = 
+  a
 
 proc `+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = a[i] + b[i]
 
-proc add*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  result = a + b
+template add*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  a + b
 
 proc `-`*[T, I](a: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = -a[i]
 
-proc `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  result = a + (-b)
+template `-`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  a + (-b)
 
-proc sub*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  result = a - b
+template sub*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  a - b
 
 proc mag*[T, I](a: TVector[T, I]): float =
   for i in low(a)..high(a):
@@ -48,8 +48,8 @@ proc dot*[T, I](a, b: TVector[T, I]): T =
   for i in low(a)..high(a):
     result += a[i] * b[i]
 
-proc `*.`*[T, I](a, b: TVector[T, I]): T =
-  result = a.dot(b)
+template `*.`*[T, I](a, b: TVector[T, I]): T =
+  a.dot(b)
 
 proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
   when len(a) != 3:
@@ -59,8 +59,8 @@ proc cross*[T, I](a, b: TVector[T, I]): TVector[T, I] =
      a[2] * b[0] - b[2] * a[0],
      a[0] * b[1] - b[0] * a[1]]
 
-proc `*+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
-  result = a.cross(b)
+template `*+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
+  a.cross(b)
 
 proc dist*[T, I](a, b: TVector[T, I]): float =
   result = (a - b).mag
@@ -69,12 +69,17 @@ proc `*`*[T, I](a: T; b: TVector[T, I]): TVector[T, I] =
   for i in low(b)..high(b):
     result[i] = a * b[i]
 
-proc `*`*[T, I](a: TVector[T, I]; b: T): TVector[T, I] =
-  result = b * a
+template `*`*[T, I](a: TVector[T, I]; b: T): TVector[T, I] =
+  b * a
 
 # Kind of sucks for ints currently, perhaps convert an int vector to float in this case?
 proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
   let m = mag(a)
   for i in low(a)..high(a):
     result[i] = a[i] / m
+
+var 
+  a = [23, 48, 2].TVec3i
+  b = [42, 28, 29].TVec3i
+  c: TVec3i
 
