@@ -112,9 +112,6 @@ proc swizzleImpl[T, I](str: string): array[T, I] {.compileTime.} =
       result[i] = 2
     elif ch in WSwizzleChars:
       result[i] = 3
-    else:
-      # I don't know how to fail here. Pragmas are evaluated independently of the code flow.
-      #error("ohai")
 
 from strutils import contains
 
