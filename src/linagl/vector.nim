@@ -64,7 +64,7 @@ proc mag*[T, I](a: TVector[T, I]): float =
   result = sqrt(result)
 
 proc dot*[T, I](a, b: TVector[T, I]): T =
-  for i in low(b)..high(b):
+  for i in low(a)..high(a):
     result += a[i] * b[i]
 
 template `*.`*[T, I](a, b: TVector[T, I]): T =
