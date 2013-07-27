@@ -1,6 +1,7 @@
 ## Author: Isak Andersson
 
 from math import pow, sqrt
+from macros import error
 
 type
   TVector*[T; I:range] = array[I, T] ## T = Type, I = Indices - will possibly later be changed to Dimension (number)
@@ -95,45 +96,39 @@ proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
     result[i] = a[i] / m
 
 const
-  SwizzleArr =
-    [{'x', 'X', 'r', 'R', 's', 'S'},
-     {'y', 'Y', 'g', 'G', 't', 'T'},
-     {'z', 'Z', 'b', 'B', 'p', 'P'},
-     {'w', 'W', 'a', 'A', 'q', 'Q'}]
-
-  X_swizzleChars = SwizzleArr[0]
-  XY_swizzleChars = X_swizzleChars + SwizzleArr[1]
-  XYZ_swizzleChars = XY_swizzleChars + SwizzleArr[2]
-  swizzleChars = SwizzleArr[0] +
-    SwizzleArr[1] +
-    SwizzleArr[2] +
-    SwizzleArr[3]
+  XSwizzleChars = {'x', 'X', 'r', 'R', 's', 'S'}
+  YSwizzleChars = {'y', 'Y', 'g', 'G', 't', 'T'}
+  ZSwizzleChars = {'z', 'Z', 'b', 'B', 'p', 'P'}
+  WSwizzleChars = {'w', 'W', 'a', 'A', 'q', 'Q'}
+  SwizzleChars = XSwizzleChars + YSwizzleChars + ZSwizzleChars + WSwizzleChars
 
 proc swizzleImpl[T, I](str: string): array[T, I] {.compileTime.} =
   for i, ch in str:
-    if ch in SwizzleArr[0]:
+    if ch in XSwizzleChars:
       result[i] = 0
-    elif ch in SwizzleArr[1]:
+    elif ch in YSwizzleChars:
       result[i] = 1
-    elif ch in SwizzleArr[2]:
+    elif ch in ZSwizzleChars:
       result[i] = 2
-    elif ch in SwizzleArr[3]:
+    elif ch in WSwizzleChars:
       result[i] = 3
     else:
       # I don't know how to fail here. Pragmas are evaluated independently of the code flow.
+      #error("ohai")
 
 from strutils import contains
 
 template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
-  when str.contains({char(0)..char(255)} - swizzleChars):
-    {.fatal: "Invalid characters for swizzling".}
+  when str.contains({char(0)..char(255)} - SwizzleChars):
+    {.fatal: "Valid swizzle characters: " & $SwizzleChars & ". Got: " & str.}
 
   when str.len == 0:
     {.fatal: "Cannot swizzle zero components".}
 
   var result: TVector[vec[0].type, 0.. <str.len]
   for i, component in swizzleImpl[0.. <str.len, vec[0].type](str):
-    assert component < vec.len
+    assert component < vec.len, "Invalid swizzle character found for " & $vec.len &
+      "-dimensional vector. Got: " & str
     result[i] = vec[component]
   result
 
