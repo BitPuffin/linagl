@@ -109,7 +109,7 @@ const
     SwizzleArr[2] +
     SwizzleArr[3]
 
-proc swizzleImpl[T, U](str: string): array[T, U] {.compileTime.} =
+proc swizzleImpl[T, I](str: string): array[T, I] {.compileTime.} =
   for i, ch in str:
     if ch in SwizzleArr[0]:
       result[i] = 0
