@@ -22,13 +22,15 @@ proc `==`*[T, I](a, b: TVector[T, I]): bool =
 
   return true
 
-# Ditto.
-proc `~=`*[T, I](a, b: TVector[T, I]): bool =
+proc approxEqual*[T:TReal, I](a, b: TVector[T, I]): bool =
   for i in low(a)..high(a):
-    if a[i] + b[i] > 0.000001:
+    if abs(a[i] - b[i]) >= 1.0e-6:
       return false
 
   return true
+
+proc `~=`*[T:TReal, I](a, b: TVector[T, I]): bool =
+  approxEqual(a, b)
 
 template `+`*[T, I](a: TVector[T, I]): TVector[T, I] =
   a
@@ -157,3 +159,7 @@ when isMainModule:
 
   assert($vec3 == "[1, 3, 37]")
   assert($vec4 == "[1, 3, 37, 4]")
+
+  var vec3f: TVec3 = [2.0'f32, 4.0'f32, 5.0'f32]
+  assert vec3f ~= vec3f
+  assert(not vec3f.approxEqual([2.0'f32, 4.0'f32, 5.001'f32]))
