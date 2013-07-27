@@ -104,7 +104,7 @@ const
   WSwizzleChars = {'w', 'W', 'a', 'A', 'q', 'Q'}
   SwizzleChars = XSwizzleChars + YSwizzleChars + ZSwizzleChars + WSwizzleChars
 
-proc swizzleImpl[T, I](str: string): array[T, I] {.compileTime.} =
+proc swizzleImpl[T, I](str: string): array[I, T] {.compileTime.} =
   for i, ch in str:
     if ch in XSwizzleChars:
       result[i] = 0
@@ -125,7 +125,7 @@ template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
     {.fatal: "Cannot swizzle zero components".}
 
   var result: TVector[vec[0].type, 0.. <str.len]
-  for i, component in swizzleImpl[0.. <str.len, vec[0].type](str):
+  for i, component in swizzleImpl[vec[0].type, 0.. <str.len](str):
     assert component < vec.len, "Invalid swizzle character found for " & $vec.len &
       "-dimensional vector. Got: " & str
     result[i] = vec[component]
