@@ -131,8 +131,8 @@ template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
   when str.len == 0:
     {.fatal: "Cannot swizzle zero components".}
 
-  var result: TVector[vec[0].type, range[0.. <str.len]]
-  for i, component in swizzleImpl[range[0.. <str.len], vec[0].type](str):
+  var result: TVector[vec[0].type, 0.. <str.len]
+  for i, component in swizzleImpl[0.. <str.len, vec[0].type](str):
     assert component < vec.len
     result[i] = vec[component]
   result
