@@ -22,9 +22,9 @@ proc `==`*[T, I](a, b: TVector[T, I]): bool =
 
   return true
 
-proc approxEqual*[T:TReal, I](a, b: TVector[T, I]): bool =
+proc approxEqual*[T:TReal, I](a, b: TVector[T, I], tolerance: T = 1.0e-5): bool =
   for i in low(a)..high(a):
-    if abs(a[i] - b[i]) >= 1.0e-6:
+    if abs(a[i] - b[i]) >= tolerance:
       return false
 
   return true
