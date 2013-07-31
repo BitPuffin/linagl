@@ -3,7 +3,7 @@ name        = "linagl"
 version     = "0.0.1"
 author      = "Isak Andersson"
 description = "OpenGL math library"
-license     = "Unlicense"
+license     = "CC0"
 srcDir      = "src"
 
 [Deps]
