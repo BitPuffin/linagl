@@ -162,4 +162,11 @@ when isMainModule:
 
   var vec3f: TVec3 = [2.0'f32, 4.0'f32, 5.0'f32]
   assert vec3f ~= vec3f
-  assert(not vec3f.approxEqual([2.0'f32, 4.0'f32, 5.001'f32]))
+  assert approxEqual(vec3f, vec3f)
+  assert(vec3f != ([2.0'f32, 4.0'f32, 5.001'f32]))
+  assert(not approxEqual(vec3f, ([2.0'f32, 4.0'f32, 5.001'f32])))
+  assert(vec3f != ([2.0'f32, 4.001'f32, 5.0'f32]))
+  assert(not (vec3f == ([2.0'f32, 4.001'f32, 5.0'f32])))
+  assert(vec3f ~= ([2.0'f32, 4.0000001'f32, 5.0'f32]))
+  assert(vec3f ~= ([2.0000001'f32, 4.0'f32, 5.0'f32]))
+  assert(not (vec3f ~= ([2.001'f32, 4.0'f32, 5.0'f32])))
