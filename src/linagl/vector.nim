@@ -118,6 +118,21 @@ proc swizzleImpl[I](str: string): array[I, int] {.compileTime.} =
 from strutils import contains
 
 template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
+  ## returns a vector where the element type is `T` and the dimension is `str.len`.
+  ## The value of each element is that of the index of `vec` that each respective character in `str`
+  ## corresponds to.
+  ## The corresponding index will be 0 if the character is present in XSwizzleChars, 1 if it's
+  ## present in YSwizzleChars and so on.
+  ## If any index is larger than that of `I` - 1, then an assertion error will be raised,
+  ## though this will eventually be a compile-time error.
+  ## Each character must be present in `SwizzleChars`, and the length of `str` must be > 0.
+  ## Example:
+  ##
+  ## .. code-block:: Nimrod
+  ##   var vec3: TVec3i = [1, 3, 37]
+  ##   assert vec3{"rgbbg"} == [1, 3, 37, 37, 3]
+  ##   var vec4: TVec4i = [1, 3, 37, 4]
+  ##   assert vec4{"wWaAqQSTPy"} == [4, 4, 4, 4, 4, 4, 1, 3, 37, 3]
   when str.contains({char(0)..char(255)} - SwizzleChars):
     {.fatal: "Valid swizzle characters: " & $SwizzleChars & ". Got: " & str.}
 
@@ -132,6 +147,7 @@ template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
   result
 
 template swizzle*[T, I](a: TVector[T, I], str: string{lit}): expr =
+  ## Alias for `{}`
   a{str}
 
 proc `$`*[T, I](a: TVector[T, I]): string =
@@ -145,6 +161,7 @@ proc `$`*[T, I](a: TVector[T, I]): string =
   result &= "]"
 
 template toString*[T, I](a: TVector[T, I]) =
+  ## Alias for `$`
   $a
 
 when isMainModule:
@@ -154,6 +171,9 @@ when isMainModule:
   assert vec3{"rrbbggr"} == [1, 1, 37, 37, 3, 3, 1]
 
   var vec4: TVec4i = [1, 3, 37, 4]
+  assert vec4{"wWaAqQSTPy"} == [4, 4, 4, 4, 4, 4, 1, 3, 37, 3]
+  assert vec4{"wWaAqQSTPy"} == vec4.swizzle("wWaAqQSTPy")
+  assert vec4{"wWaAqQSTPy"} == vec4.swizzle("wWaAqQSTPG")
   assert vec4{"rgbbg"} == [1, 3, 37, 37, 3]
   assert vec4{"rrbaggr"} == [1, 1, 37, 4, 3, 3, 1]
 
