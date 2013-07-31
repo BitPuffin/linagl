@@ -98,11 +98,11 @@ proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
     result[i] = a[i] / m
 
 const
-  XSwizzleChars = {'x', 'X', 'r', 'R', 's', 'S'}
-  YSwizzleChars = {'y', 'Y', 'g', 'G', 't', 'T'}
-  ZSwizzleChars = {'z', 'Z', 'b', 'B', 'p', 'P'}
-  WSwizzleChars = {'w', 'W', 'a', 'A', 'q', 'Q'}
-  SwizzleChars = XSwizzleChars + YSwizzleChars + ZSwizzleChars + WSwizzleChars
+  XSwizzleChars* = {'x', 'X', 'r', 'R', 's', 'S'}
+  YSwizzleChars* = {'y', 'Y', 'g', 'G', 't', 'T'}
+  ZSwizzleChars* = {'z', 'Z', 'b', 'B', 'p', 'P'}
+  WSwizzleChars* = {'w', 'W', 'a', 'A', 'q', 'Q'}
+  SwizzleChars* = XSwizzleChars + YSwizzleChars + ZSwizzleChars + WSwizzleChars
 
 proc swizzleImpl[I](str: string): array[I, int] {.compileTime.} =
   for i, ch in str:
