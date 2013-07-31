@@ -1,6 +1,7 @@
 ## Author: Isak Andersson
 
 from math import pow, sqrt
+from macros import error
 
 type
   TVector*[T; I:range] = array[I, T] ## T = Type, I = Indices - will possibly later be changed to Dimension (number)
@@ -14,7 +15,24 @@ type
   TVec3i* = TVector[int, range[0..2]]
   TVec4i* = TVector[int, range[0..3]]
 
-template `+`*[T, I](a: TVector[T, I]): TVector[T, I] = 
+proc `==`*[T, I](a, b: TVector[T, I]): bool =
+  for i in low(a)..high(a):
+    if a[i] != b[i]:
+      return false
+
+  return true
+
+proc approxEqual*[T:TReal, I](a, b: TVector[T, I], tolerance: T = 1.0e-5): bool =
+  for i in low(a)..high(a):
+    if abs(a[i] - b[i]) >= tolerance:
+      return false
+
+  return true
+
+proc `~=`*[T:TReal, I](a, b: TVector[T, I]): bool =
+  approxEqual(a, b)
+
+template `+`*[T, I](a: TVector[T, I]): TVector[T, I] =
   a
 
 proc `+`*[T, I](a, b: TVector[T, I]): TVector[T, I] =
@@ -79,25 +97,58 @@ proc normalize*[T, I](a: TVector[T, I]): TVector[T, I] =
   for i in low(a)..high(a):
     result[i] = a[i] / m
 
-const swizzles = {'x', 'X', 'y', 'Y', 'z', 'Z', 'w', 'W', 'r', 'R', 'g', 'G', 'b', 'B', 'a', 'A', 's', 'S', 't', 'T', 'p', 'P', 'q', 'Q'}
+const
+  XSwizzleChars* = {'x', 'X', 'r', 'R', 's', 'S'}
+  YSwizzleChars* = {'y', 'Y', 'g', 'G', 't', 'T'}
+  ZSwizzleChars* = {'z', 'Z', 'b', 'B', 'p', 'P'}
+  WSwizzleChars* = {'w', 'W', 'a', 'A', 'q', 'Q'}
+  SwizzleChars* = XSwizzleChars + YSwizzleChars + ZSwizzleChars + WSwizzleChars
+
+proc swizzleImpl[I](str: string): array[I, int] {.compileTime.} =
+  for i, ch in str:
+    if ch in XSwizzleChars:
+      result[i] = 0
+    elif ch in YSwizzleChars:
+      result[i] = 1
+    elif ch in ZSwizzleChars:
+      result[i] = 2
+    elif ch in WSwizzleChars:
+      result[i] = 3
+
 from strutils import contains
-template swizzle*(a: TVector; s: string{lit}) =
-  when s.contains({char(0)..char(255)} - swizzles):
-    {.fatal:"Invalid characters for swizzling".}
-  var result: TVector[type(a[0]), 0..len(s)-1]
-  for i, c in pairs(s):
-    case c
-    of 'x', 'X', 'r', 'R', 's', 'S':
-      result[i] = a[0]
-    of 'y', 'Y', 'g', 'G', 't', 'T':
-      result[i] = a[1]
-    of 'z', 'Z', 'b', 'B', 'p', 'P':
-      result[i] = a[2]
-    of 'w', 'W', 'a', 'A', 'q', 'Q':
-      result[i] = a[3]
-    else:
-      {.error: "Not possible".}
+
+template `{}`*[T, I](vec: TVector[T, I], str: string{lit}): expr =
+  ## returns a vector where the element type is `T` and the dimension is `str.len`.
+  ## The value of each element is that of the index of `vec` that each respective character in `str`
+  ## corresponds to.
+  ## The corresponding index will be 0 if the character is present in XSwizzleChars, 1 if it's
+  ## present in YSwizzleChars and so on.
+  ## If any index is larger than that of `I` - 1, then an assertion error will be raised,
+  ## though this will eventually be a compile-time error.
+  ## Each character must be present in `SwizzleChars`, and the length of `str` must be > 0.
+  ## Example:
+  ##
+  ## .. code-block:: Nimrod
+  ##   var vec3: TVec3i = [1, 3, 37]
+  ##   assert vec3{"rgbbg"} == [1, 3, 37, 37, 3]
+  ##   var vec4: TVec4i = [1, 3, 37, 4]
+  ##   assert vec4{"wWaAqQSTPy"} == [4, 4, 4, 4, 4, 4, 1, 3, 37, 3]
+  when str.contains({char(0)..char(255)} - SwizzleChars):
+    {.fatal: "Valid swizzle characters: " & $SwizzleChars & ". Got: " & str.}
+
+  when str.len == 0:
+    {.fatal: "Cannot swizzle zero components".}
+
+  var result: TVector[vec[0].type, 0.. <str.len]
+  for i, component in swizzleImpl[0.. <str.len](str):
+    assert component < vec.len, "Invalid swizzle character found for " & $vec.len &
+      "-dimensional vector. Got: " & str
+    result[i] = vec[component]
   result
+
+template swizzle*[T, I](a: TVector[T, I], str: string{lit}): expr =
+  ## Alias for `{}`
+  a{str}
 
 proc `$`*[T, I](a: TVector[T, I]): string =
   result = ""
@@ -110,7 +161,32 @@ proc `$`*[T, I](a: TVector[T, I]): string =
   result &= "]"
 
 template toString*[T, I](a: TVector[T, I]) =
+  ## Alias for `$`
   $a
 
-#var a: TVec3i = [1, 3, 37]
-#echo($(a.swizzle("rgbbg")))
+when isMainModule:
+  var vec3: TVec3i = [1, 3, 37]
+  assert vec3{"rgbbg"} == [1, 3, 37, 37, 3]
+  assert vec3{"rgbbg"} == vec3.swizzle("rgbbg")
+  assert vec3{"rrbbggr"} == [1, 1, 37, 37, 3, 3, 1]
+
+  var vec4: TVec4i = [1, 3, 37, 4]
+  assert vec4{"wWaAqQSTPy"} == [4, 4, 4, 4, 4, 4, 1, 3, 37, 3]
+  assert vec4{"wWaAqQSTPy"} == vec4.swizzle("wWaAqQSTPy")
+  assert vec4{"wWaAqQSTPy"} == vec4.swizzle("wWaAqQSTPG")
+  assert vec4{"rgbbg"} == [1, 3, 37, 37, 3]
+  assert vec4{"rrbaggr"} == [1, 1, 37, 4, 3, 3, 1]
+
+  assert($vec3 == "[1, 3, 37]")
+  assert($vec4 == "[1, 3, 37, 4]")
+
+  var vec3f: TVec3 = [2.0'f32, 4.0'f32, 5.0'f32]
+  assert vec3f ~= vec3f
+  assert approxEqual(vec3f, vec3f)
+  assert(vec3f != ([2.0'f32, 4.0'f32, 5.001'f32]))
+  assert(not approxEqual(vec3f, ([2.0'f32, 4.0'f32, 5.001'f32])))
+  assert(vec3f != ([2.0'f32, 4.001'f32, 5.0'f32]))
+  assert(not (vec3f == ([2.0'f32, 4.001'f32, 5.0'f32])))
+  assert(vec3f ~= ([2.0'f32, 4.0000001'f32, 5.0'f32]))
+  assert(vec3f ~= ([2.0000001'f32, 4.0'f32, 5.0'f32]))
+  assert(not (vec3f ~= ([2.001'f32, 4.0'f32, 5.0'f32])))
