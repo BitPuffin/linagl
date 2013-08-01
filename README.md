@@ -1,4 +1,2 @@
-linagl
-======
-
-OpenGL linear algebra library for nimrod, coming soon!
+linagl - MOVED TO BITBUCKET: https://bitbucket.org/TheLonelyByte/linagl
+=======================================================================
